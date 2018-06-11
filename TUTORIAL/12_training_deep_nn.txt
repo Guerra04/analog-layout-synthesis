@@ -1,0 +1,35 @@
+Vanishing/Exploding Gradients Problem:
+	Initialization: pág 336
+	Activation functions: 337-339
+	Batch normalization: 340-343
+	Gradient Clipping: 344
+
+Reusing Pretrained Layers:
+	Find a NN that accomplishes a similiar task and use the lower layers
+	Using TF: 346
+	From other frameworks: 347
+	Freezing layers = fixed weights: 348
+	Caching the frozen layers: 349
+	Tweaking, dropping or replacing upper layers: 350
+	Model libraries: https://github.com/tensorflow/models ||| https://github.com/ethereon/caffe-tensorflow
+
+Faster Optimizers:
+	Momentum:355
+	Nesterov:357
+	RMS Prop:360
+	Adam: 361
+	Learning rate scheduling: 363-364
+
+Regularization:
+	Early Stopping: 366
+	l1 and l2 regularization: 367
+	dropout: if model is overfitting increase droput rate: 368-369
+	max-norm regularization: 371-372
+
+Guidelines: 375
+	Initialization: He Initialization
+	Activation function: ELU
+	normalization: batch normalization
+	Regularization: dropout
+	Optimizer: Adam
+	Learning rate scheduler: None 

@@ -1,0 +1,15 @@
+Number of hidden layers:
+	1 hidden layer gets reasonable results
+	1 hidden layer with enough neurons can model the most complex functions
+	deeper networks need less neurons, making them faster to train
+	ramp up the number of hidden layers until you start overfitting training set
+
+Number of neurons per hidden layer:
+	form a funnel, with fewer and fewer neurons at each layer
+	OR same number for each layer and ramp up the number until overfitting
+	pick a model with more layers and neurons then you need, then use early
+		stopping to prevent overfitting (and regularization techniques = dropout)
+
+Activation functions:
+	ReLU in the hidden layers: faster to compute
+	Output layer: softmax for classification, no function for regression.
