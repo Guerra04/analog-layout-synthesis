@@ -1,0 +1,21 @@
+0               5  |  6                   11  | 12              17 |
+W8 W6 W4 W10 W1 W0 | NF8 NF6 NF4 NF10 NF1 NF0 | L8 L6 L4 L10 L1 L0 | 
+                   |                          |                    | 
+
+18                                                                                              41  |
+WH0 HE0 WH1 HE1 WH2 HE2 WH3 HE3 WH4 HE4 WH5 HE5 WH6 HE6 WH7 HE7 WH8 HE8 WH9 HE9 WH10 HE10 WH11 HE11 |
+                                                                                                    |
+42                                                                                              65  |
+A0X A0Y A1X A1Y A2X A2Y A3X A3Y A4X A4Y A5X A5Y A6X A6Y A7X A7Y A8X A8Y A9X A9Y A10X A10Y A11X A11Y |
+                                                                                                    |
+66                                                                                              89  |
+B0X B0Y B1X B1Y B2X B2Y B3X B3Y B4X B4Y B5X B5Y B6X B6Y B7X B7Y B8X B8Y B9X B9Y B10X B10Y B11X B11Y |
+                                                                                                    |
+90                                                                                             113  |
+C0X C0Y C1X C1Y C2X C2Y C3X C3Y C4X C4Y C5X C5Y C6X C6Y C7X C7Y C8X C8Y C9X C9Y C10X C10Y C11X C11Y |
+                                                                                                    |
+
+
+
+
+Pares: 0-3 | 1-2 | 4-5 | 6-7 | 8-9 | 10-11 |
