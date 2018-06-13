@@ -1,5 +1,6 @@
 import tensorflow as tf
 from tensorflow.contrib.layers import fully_connected
+from tensorflow.contrib.layers import dropout
 import numpy as np
 from sklearn import cross_validation
 from sklearn.preprocessing import StandardScaler
@@ -77,6 +78,7 @@ def main():
 	with tf.name_scope("inputs"):
 		#input = tf.placeholder(tf.float32, shape = (None, n_inputs), name = "input")
 		input = tf.placeholder(tf.float32, shape = (None, n_inputs), name = "input")
+		is_training = tf.placeholder(tf.bool, shape=(), name = "is_training")
 
 		#outputs
 	with tf.name_scope("outputs"):
@@ -89,18 +91,22 @@ def main():
 	# NN architecture
 		#regression
 	hiddens = []
+	hiddens_drop = []
 	n_neurons = [100, 200, 400, 600, 800]
 	with tf.name_scope("dnn"):
 		if(N_HIDDEN == 0):
 			regression = fully_connected(input, n_outputs, scope="regression")
 		else:
 			for n in range(N_HIDDEN):
+				input_drop = dropout(input, keep_prob, is_training=is_training)
 				name = "hidden" + str(n+1)
 				if n == 0:
-					hiddens.append(fully_connected(input, n_neurons[n], scope=name, activation_fn=tf.tanh))
+					hiddens.append(fully_connected(input_drop, n_neurons[n], scope=name, activation_fn=tf.tanh))
 				else:
-					hiddens.append(fully_connected(hiddens[n-1], n_neurons[n], scope=name, activation_fn=tf.tanh))
-			regression = fully_connected(hiddens[N_HIDDEN-1], n_outputs, scope="regression", activation_fn=None)
+					hiddens.append(fully_connected(hiddens_drop[n-1], n_neurons[n], scope=name, activation_fn=tf.tanh))
+				hiddens_drop.append(dropout(hiddens[n], keep_prob, is_training=is_training))
+
+			regression = fully_connected(hiddens_drop[N_HIDDEN-1], n_outputs, scope="regression", activation_fn=None)
 
 	# Train specification
 	learning_rate = 0.01
@@ -188,19 +194,19 @@ def main():
 		for epoch in range(n_epochs):
 			for batch_index in range(n_batches):
 				x_batch, y_batch = get_next_batch(inputs_train, outputs_train, batch_index, batch_size)
-				sess.run(training_op, feed_dict = {input: x_batch, output: y_batch})
+				sess.run(training_op, feed_dict = {input: x_batch, output: y_batch, is_training: True})
 
 			#test_max_error = 0
 			#acc_train = sess.run(loss,  feed_dict = {input: x_batch, output: y_batch})
 			#acc_test = sess.run(loss,  feed_dict = {input: inputs_test, output: outputs_test})
 			if(epoch % 100 == 0):
-				acc_train = loss.eval(feed_dict = {input: x_batch, output: y_batch})
-				ol_train = overlap.eval(feed_dict = {input: x_batch, output: y_batch})
-				error_train = error.eval(feed_dict = {input: x_batch, output: y_batch})
+				acc_train = loss.eval(feed_dict = {input: x_batch, output: y_batch, is_training: True})
+				ol_train = overlap.eval(feed_dict = {input: x_batch, output: y_batch, is_training: True})
+				error_train = error.eval(feed_dict = {input: x_batch, output: y_batch, is_training: True})
 
-				acc_test = loss.eval(feed_dict = {input: inputs_test, output: outputs_test})
-				ol_test = overlap.eval(feed_dict = {input: inputs_test, output: outputs_test})
-				error_test = error.eval(feed_dict = {input: inputs_test, output: outputs_test})
+				acc_test = loss.eval(feed_dict = {input: inputs_test, output: outputs_test, is_training: True})
+				ol_test = overlap.eval(feed_dict = {input: inputs_test, output: outputs_test, is_training: True})
+				error_test = error.eval(feed_dict = {input: inputs_test, output: outputs_test, is_training: True})
 
 				#debug = mean_areas.eval(feed_dict = {input: x_batch, output: y_batch})
 				#print(debug.shape)
@@ -210,7 +216,7 @@ def main():
 				print(epoch, "Test loss:", acc_test, "Test error:", error_test, "Test Overlap:", ol_test)
 
 				save_path = saver.save(sess, "./tmp/my_model.ckpt")
-				summary_str = mse_summary.eval(feed_dict = {input: x_batch, output: y_batch})
+				summary_str = mse_summary.eval(feed_dict = {input: x_batch, output: y_batch, is_training: True})
 				step = epoch * n_batches + batch_index
 				file_writer.add_summary(summary_str, step)
 

@@ -1,5 +1,5 @@
-DATASETS/12abr.csv
-DATASETS/23mar.csv
+DATASETS/12abr.*
+DATASETS/23mar.*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

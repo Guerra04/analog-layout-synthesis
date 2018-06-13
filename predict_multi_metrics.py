@@ -135,6 +135,7 @@ def main():
 		graph = tf.get_default_graph()
 
 		input = graph.get_tensor_by_name('inputs/input:0')
+		is_training = graph.get_tensor_by_name('inputs/is_training:0')
 		regression = graph.get_tensor_by_name('loss/predict:0')
 		output = graph.get_tensor_by_name('outputs/output:0')
 		loss = graph.get_tensor_by_name('loss/loss:0')
@@ -153,13 +154,13 @@ def main():
 		for line in range(n_train):
 			feed = inputs_train[line:line+1, :]
 
-			predict = regression.eval(feed_dict = {input:feed})
+			predict = regression.eval(feed_dict = {input:feed, is_training: False})
 			predict_train[line, :] = predict
 
 		for line in range(n_test):
 			feed = inputs_test[line:line+1, :]
 
-			predict = regression.eval(feed_dict = {input:feed})
+			predict = regression.eval(feed_dict = {input:feed, is_training: False})
 			predict_test[line, :] = predict
 
 		predict_train = scaler_out.inverse_transform(predict_train)
@@ -254,8 +255,8 @@ def main():
 		#----------------------------TRAIN------------------------------
 		for i in range(to_check):
 			for metric in range(3):
-				idx = sorted_error_train[metric, n_train-i-1] #worst
-				#idx = sorted_error_train[metric, math.floor(n_train/2)] #middle
+				#idx = sorted_error_train[metric, n_train-i-1] #worst
+				idx = sorted_error_train[metric, math.floor(n_train/2)] #middle
 				#idx = sorted_error_train[metric, i] #better
 				#idx = sorted_overlap_train[metric, n_train-i-1] #max overlap
 
@@ -287,8 +288,8 @@ def main():
 		#------------------------------TEST---------------------
 		for i in range(to_check):
 			for metric in range(3):
-				idx = sorted_error_test[metric, n_test-i-1] #worst
-				#idx = sorted_error_test[metric, math.floor(n_test/2)] #middle
+				#idx = sorted_error_test[metric, n_test-i-1] #worst
+				idx = sorted_error_test[metric, math.floor(n_test/2)] #middle
 				#idx = sorted_error_test[metric, i] #better
 				#idx = sorted_overlap_test[metric, n_test-i-1] #max overlap
 
