@@ -21,7 +21,8 @@ from HYPERPARAMS import *
 def compute_error(predict, target):
 	error = 0
 	for i in range(N_DEVICES):
-		aux = np.sqrt((predict[2*i] - target[2*i])**2 + (predict[1+2*i] - target[1+2*i])**2)
+		aux = np.sqrt((predict[0+2*i] - target[0+2*i])**2 + (predict[1+2*i] - target[1+2*i])**2)
+
 		error = error + aux
 
 	return error
@@ -142,14 +143,22 @@ def main():
 
 		predict_train = np.zeros((n_train, n_outputs))
 		predict_test = np.zeros((n_test, n_outputs))
+
 		predict_train_metrics = np.zeros((3, n_train, n_outputs_metric))
 		predict_test_metrics = np.zeros((3, n_test, n_outputs_metric))
+
 		outputs_train_metrics = np.zeros((3, n_train, n_outputs_metric))
 		outputs_test_metrics = np.zeros((3, n_test, n_outputs_metric))
+
 		error_train = np.zeros((3, n_train))
 		error_test = np.zeros((3, n_test))
 		overlap_train = np.zeros((3, n_train))
 		overlap_test = np.zeros((3, n_test))
+
+		acc_error_train = np.zeros((3,1))
+		acc_error_test = np.zeros((3,1))
+		acc_overlap_train = np.zeros((3,1))
+		acc_overlap_test = np.zeros((3,1))
 
 		for line in range(n_train):
 			feed = inputs_train[line:line+1, :]
@@ -172,6 +181,9 @@ def main():
 		outputs_train = scaler_out.inverse_transform(outputs_train)
 		outputs_test = scaler_out.inverse_transform(outputs_test)
 
+		error_th = 1.5e-5
+		overlap_th = 0
+
 		for line in range(n_train):
 			for metric in range(3):
 				for n in range(N_DEVICES):
@@ -184,8 +196,14 @@ def main():
 				error = compute_error(predict_train_metrics[metric, line,:], outputs_train_metrics[metric, line,:])
 				error_train[metric, line] = error
 
+				if error_train[metric, line] <= error_th:
+					acc_error_train[metric] += 1
+
 				overlap = compute_overlap(predict_train_metrics[metric, line,:], inputs_train[line,1:])
 				overlap_train[metric, line] = overlap
+
+				if overlap_train[metric, line] <= overlap_th:
+					acc_overlap_train[metric] += 1
 
 		for line in range(n_test):
 			for metric in range(3):
@@ -199,8 +217,14 @@ def main():
 				error = compute_error(predict_test_metrics[metric, line,:], outputs_test_metrics[metric, line,:])
 				error_test[metric, line] = error
 
+				if error_test[metric, line] <= error_th:
+					acc_error_test[metric] += 1
+
 				overlap = compute_overlap(predict_test_metrics[metric, line,:], inputs_test[line,1:])
 				overlap_test[metric, line] = overlap
+
+				if overlap_test[metric, line] <= overlap_th:
+					acc_overlap_test[metric] += 1
 
 		#Normalize for easier visualization
 		predict_train_metrics = predict_train_metrics/5e-6
@@ -216,6 +240,10 @@ def main():
 		sorted_error_test = np.argsort(error_test)
 		sorted_overlap_train = np.argsort(overlap_train)
 		sorted_overlap_test = np.argsort(overlap_test)
+
+		print("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
+		print("|||||||||||||||||||||||||||| ERRORS |||||||||||||||||||||||||||")
+		print("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
 
 		print("-----------------------------TRAIN-----------------------------")
 		print(".....Wasted Area.....")
@@ -251,12 +279,38 @@ def main():
 		print("Max Overlap:", overlap_test[2, sorted_overlap_test[2, n_test-1]])
 		print("---------------------------------------------------------------")
 
+		print("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
+		print("|||||||||||||||||||||||||| ACCURACY |||||||||||||||||||||||||||")
+		print("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
+
+		print("-----------------------------TRAIN-----------------------------")
+		print(".....Wasted Area.....")
+		print("Error Accuracy:", acc_error_train[0]/n_train*100, "%")
+		print("Overlap Accuracy:", acc_overlap_train[0]/n_train*100, "%")
+		print(".....Maximum AR.....")
+		print("Error Accuracy:", acc_error_train[1]/n_train*100, "%")
+		print("Overlap Accuracy:", acc_overlap_train[1]/n_train*100, "%")
+		print(".....Minimum AR.....")
+		print("Error Accuracy:", acc_error_train[2]/n_train*100, "%")
+		print("Overlap Accuracy:", acc_overlap_train[2]/n_train*100, "%")
+		print("-----------------------------TEST------------------------------")
+		print(".....Wasted Area.....")
+		print("Error Accuracy:", acc_error_test[0]/n_test*100, "%")
+		print("Overlap Accuracy:", acc_overlap_test[0]/n_test*100, "%")
+		print(".....Maximum AR.....")
+		print("Error Accuracy:", acc_error_test[1]/n_test*100, "%")
+		print("Overlap Accuracy:", acc_overlap_test[1]/n_test*100, "%")
+		print(".....Minimum AR.....")
+		print("Error Accuracy:", acc_error_test[2]/n_test*100, "%")
+		print("Overlap Accuracy:", acc_overlap_test[2]/n_test*100, "%")
+		print("---------------------------------------------------------------")
+
 		to_check = 1
 		#----------------------------TRAIN------------------------------
 		for i in range(to_check):
 			for metric in range(3):
 				#idx = sorted_error_train[metric, n_train-i-1] #worst
-				idx = sorted_error_train[metric, math.floor(n_train/2)] #middle
+				idx = sorted_error_train[metric, math.floor(3*n_train/4)] #middle
 				#idx = sorted_error_train[metric, i] #better
 				#idx = sorted_overlap_train[metric, n_train-i-1] #max overlap
 
@@ -289,7 +343,7 @@ def main():
 		for i in range(to_check):
 			for metric in range(3):
 				#idx = sorted_error_test[metric, n_test-i-1] #worst
-				idx = sorted_error_test[metric, math.floor(n_test/2)] #middle
+				idx = sorted_error_test[metric, math.floor(3*n_test/4)] #middle
 				#idx = sorted_error_test[metric, i] #better
 				#idx = sorted_overlap_test[metric, n_test-i-1] #max overlap
 
