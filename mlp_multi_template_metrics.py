@@ -220,7 +220,7 @@ def main():
 				step = epoch * n_batches + batch_index
 				file_writer.add_summary(summary_str, step)
 
-		file = "./Models/" + str(N_TEMPLATES) + "multi" + str(degree) + "poly" + str(N_HIDDEN) + "hidden" + str(n_epochs) + "beta" + str(beta) + ".ckpt"
+		file = "./Models/" + str(N_HIDDEN) + "_" + str(n_epochs) + "_" + str(batch_size) + "_" + str(degree) + "_" + str(keep_prob) + "_" + str(N_TEMPLATES) + ".ckpt"
 		save_path = saver.save(sess, file)
 
 	file_writer.close()

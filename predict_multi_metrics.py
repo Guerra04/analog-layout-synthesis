@@ -127,7 +127,8 @@ def main():
 
 	with tf.Session() as sess:
 		#file = "./Models/" + str(N_TEMPLATES) + "multi" + str(degree) + "poly" + str(N_HIDDEN) + "hidden_" + str(n_epochs) + ".ckpt"
-		file = "./Models/" + str(N_TEMPLATES) + "multi" + str(degree) + "poly" + str(N_HIDDEN) + "hidden" + str(n_epochs) + "beta" + str(beta) + ".ckpt"
+		#file = "./Models/" + str(N_TEMPLATES) + "multi" + str(degree) + "poly" + str(N_HIDDEN) + "hidden" + str(n_epochs) + "beta" + str(beta) + ".ckpt"
+		file = "./Models/" + str(N_HIDDEN) + "_" + str(n_epochs) + "_" + str(batch_size) + "_" + str(degree) + "_" + str(keep_prob) + "_" + str(N_TEMPLATES) + ".ckpt"
 		file_meta = file + ".meta"
 
 		new_saver = tf.train.import_meta_graph(file_meta)
@@ -202,7 +203,7 @@ def main():
 				overlap = compute_overlap(predict_train_metrics[metric, line,:], inputs_train[line,1:])
 				overlap_train[metric, line] = overlap
 
-				if overlap_train[metric, line] <= overlap_th:
+				if overlap_train[metric, line] > overlap_th:
 					acc_overlap_train[metric] += 1
 
 		for line in range(n_test):
@@ -223,7 +224,7 @@ def main():
 				overlap = compute_overlap(predict_test_metrics[metric, line,:], inputs_test[line,1:])
 				overlap_test[metric, line] = overlap
 
-				if overlap_test[metric, line] <= overlap_th:
+				if overlap_test[metric, line] > overlap_th:
 					acc_overlap_test[metric] += 1
 
 		#Normalize for easier visualization
@@ -242,69 +243,57 @@ def main():
 		sorted_overlap_test = np.argsort(overlap_test)
 
 		print("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
-		print("|||||||||||||||||||||||||||| ERRORS |||||||||||||||||||||||||||")
+		print("||||||||||||||||||||||||||||| TEST ||||||||||||||||||||||||||||")
 		print("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
 
-		print("-----------------------------TRAIN-----------------------------")
-		print(".....Wasted Area.....")
-		print("Mean Error:", np.mean(error_train[0,:]))
-		print("Max Error:", error_train[0, sorted_error_train[0, n_train-1]])
-		print("Mean Overlap:", np.mean(overlap_train[0,:]))
-		print("Max Overlap:", overlap_train[0, sorted_overlap_train[0, n_train-1]])
-		print(".....Maximum AR.....")
-		print("Mean Error:", np.mean(error_train[1,:]))
-		print("Max Error:", error_train[1, sorted_error_train[1, n_train-1]])
-		print("Mean Overlap:", np.mean(overlap_train[1,:]))
-		print("Max Overlap:", overlap_train[1, sorted_overlap_train[1, n_train-1]])
-		print(".....Minimum AR.....")
-		print("Mean Error:", np.mean(error_train[2,:]))
-		print("Max Error:", error_train[2, sorted_error_train[2, n_train-1]])
-		print("Mean Overlap:", np.mean(overlap_train[2,:]))
-		print("Max Overlap:", overlap_train[2, sorted_overlap_train[2, n_train-1]])
-		print("------------------------------TEST-----------------------------")
 		print(".....Wasted Area.....")
 		print("Mean Error:", np.mean(error_test[0,:]))
 		print("Max Error:", error_test[0, sorted_error_test[0, n_test-1]])
+		print("Error Accuracy:", acc_error_test[0]/n_test*100, "%")
 		print("Mean Overlap:", np.mean(overlap_test[0,:]))
 		print("Max Overlap:", overlap_test[0, sorted_overlap_test[0, n_test-1]])
-		print(".....Maximum AR.....")
+		print("Overlap Accuracy:", acc_overlap_test[0]/n_test*100, "%")
+		print(".....Minimum AR.....")
 		print("Mean Error:", np.mean(error_test[1,:]))
 		print("Max Error:", error_test[1, sorted_error_test[1, n_test-1]])
+		print("Error Accuracy:", acc_error_test[1]/n_test*100, "%")
 		print("Mean Overlap:", np.mean(overlap_test[1,:]))
 		print("Max Overlap:", overlap_test[1, sorted_overlap_test[1, n_test-1]])
-		print(".....Wasted Area.....")
+		print("Overlap Accuracy:", acc_overlap_test[1]/n_test*100, "%")
+		print(".....Maximum AR.....")
 		print("Mean Error:", np.mean(error_test[2,:]))
 		print("Max Error:", error_test[2, sorted_error_test[2, n_test-1]])
+		print("Error Accuracy:", acc_error_test[2]/n_test*100, "%")
 		print("Mean Overlap:", np.mean(overlap_test[2,:]))
 		print("Max Overlap:", overlap_test[2, sorted_overlap_test[2, n_test-1]])
-		print("---------------------------------------------------------------")
-
-		print("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
-		print("|||||||||||||||||||||||||| ACCURACY |||||||||||||||||||||||||||")
-		print("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
-
-		print("-----------------------------TRAIN-----------------------------")
-		print(".....Wasted Area.....")
-		print("Error Accuracy:", acc_error_train[0]/n_train*100, "%")
-		print("Overlap Accuracy:", acc_overlap_train[0]/n_train*100, "%")
-		print(".....Maximum AR.....")
-		print("Error Accuracy:", acc_error_train[1]/n_train*100, "%")
-		print("Overlap Accuracy:", acc_overlap_train[1]/n_train*100, "%")
-		print(".....Minimum AR.....")
-		print("Error Accuracy:", acc_error_train[2]/n_train*100, "%")
-		print("Overlap Accuracy:", acc_overlap_train[2]/n_train*100, "%")
-		print("-----------------------------TEST------------------------------")
-		print(".....Wasted Area.....")
-		print("Error Accuracy:", acc_error_test[0]/n_test*100, "%")
-		print("Overlap Accuracy:", acc_overlap_test[0]/n_test*100, "%")
-		print(".....Maximum AR.....")
-		print("Error Accuracy:", acc_error_test[1]/n_test*100, "%")
-		print("Overlap Accuracy:", acc_overlap_test[1]/n_test*100, "%")
-		print(".....Minimum AR.....")
-		print("Error Accuracy:", acc_error_test[2]/n_test*100, "%")
 		print("Overlap Accuracy:", acc_overlap_test[2]/n_test*100, "%")
-		print("---------------------------------------------------------------")
 
+		print("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
+		print("|||||||||||||||||||||||||||| TRAIN ||||||||||||||||||||||||||||")
+		print("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
+		print(".....Wasted Area.....")
+		print("Mean Error:", np.mean(error_train[0,:]))
+		print("Max Error:", error_train[0, sorted_error_train[0, n_train-1]])
+		print("Error Accuracy:", acc_error_train[0]/n_train*100, "%")
+		print("Mean Overlap:", np.mean(overlap_train[0,:]))
+		print("Max Overlap:", overlap_train[0, sorted_overlap_train[0, n_train-1]])
+		print("Overlap Accuracy:", acc_overlap_train[0]/n_train*100, "%")
+		print(".....Minimum AR.....")
+		print("Mean Error:", np.mean(error_train[1,:]))
+		print("Max Error:", error_train[1, sorted_error_train[1, n_train-1]])
+		print("Error Accuracy:", acc_error_train[1]/n_train*100, "%")
+		print("Mean Overlap:", np.mean(overlap_train[1,:]))
+		print("Max Overlap:", overlap_train[1, sorted_overlap_train[1, n_train-1]])
+		print("Overlap Accuracy:", acc_overlap_train[1]/n_train*100, "%")
+		print(".....Maximum AR.....")
+		print("Mean Error:", np.mean(error_train[2,:]))
+		print("Max Error:", error_train[2, sorted_error_train[2, n_train-1]])
+		print("Error Accuracy:", acc_error_train[2]/n_train*100, "%")
+		print("Mean Overlap:", np.mean(overlap_train[2,:]))
+		print("Max Overlap:", overlap_train[2, sorted_overlap_train[2, n_train-1]])
+		print("Overlap Accuracy:", acc_overlap_train[2]/n_train*100, "%")
+
+		'''
 		to_check = 1
 		#----------------------------TRAIN------------------------------
 		for i in range(to_check):
@@ -324,12 +313,6 @@ def main():
 				for n in range(N_DEVICES):
 					rect.append(val.draw_rectangle(outputs_train_metrics[metric, idx, 2*n], outputs_train_metrics[metric, idx, 1+2*n], inputs_train[idx, 3+5*n], inputs_train[idx, 4+5*n], 'r'))
 					rect_pred.append(val.draw_rectangle(predict_train_metrics[metric, idx, 2*n], predict_train_metrics[metric, idx, 1+2*n], inputs_train[idx, 3+5*n], inputs_train[idx, 4+5*n], 'b'))
-					'''
-					print("TARGET ||| PREDICT")
-					print("-----", n, "-----")
-					print("x", outputs_train[idx, 2*n], "|||", predict_train[idx, 2*n])
-					print("y", outputs_train[idx, 1+2*n], "|||", predict_train[idx, 1+2*n])
-					'''
 
 				for r in rect:
 					ax.add_patch(r)
@@ -357,12 +340,6 @@ def main():
 				for n in range(N_DEVICES):
 					rect.append(val.draw_rectangle(outputs_test_metrics[metric, idx, 2*n], outputs_test_metrics[metric, idx, 1+2*n], inputs_test[idx, 3+5*n], inputs_test[idx, 4+5*n], 'r'))
 					rect_pred.append(val.draw_rectangle(predict_test_metrics[metric, idx, 2*n], predict_test_metrics[metric, idx, 1+2*n], inputs_test[idx, 3+5*n], inputs_test[idx, 4+5*n], 'b'))
-					'''
-					print("TARGET ||| PREDICT")
-					print("-----", n, "-----")
-					print("x", outputs_test[idx, 2*n], "|||", predict_test[idx, 2*n])
-					print("y", outputs_test[idx, 1+2*n], "|||", predict_test[idx, 1+2*n])
-					'''
 
 				for r in rect:
 					ax.add_patch(r)
@@ -371,7 +348,7 @@ def main():
 					ax.add_patch(r)
 
 				plt.show()
-
+		'''
 
 if __name__ == '__main__':
 	main()

@@ -2,7 +2,7 @@ N_DEVICES = 12
 
 N_HIDDEN = 4
 
-N_TEMPLATES = 2
+N_TEMPLATES = 12
 
 n_epochs = 1500
 batch_size = 500
