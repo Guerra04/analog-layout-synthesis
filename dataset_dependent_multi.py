@@ -9,7 +9,7 @@ N_DEVICES = 12
 def main():
 	df = pd.read_csv('DATASETS/dataset_multi_template.csv')
 
-	N_TEMPLATES = 12
+	N_TEMPLATES = 8
 	N_DEVICES = 12
 	lines = df.shape[0]
 
